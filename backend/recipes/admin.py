@@ -5,7 +5,7 @@ from .models import Ingredient, IngredientInRecipe, Tag, Favorite, Recipe, Shopp
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'measurement')
+    list_display = ('id', 'name', 'measurement_unit')
     fields = ('name',)
     ordering = ('name',)
     search_fields = ('name',)
@@ -28,14 +28,19 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author')
+    list_display = ('pk', 'name', 'author', 'text',
+                    'cooking_time')
     fields = ('name', 'text',
               'author', 'image',
-              'tag', 'cooking_time', 'pub_date')
+              'tag', 'cooking_time')
     ordering = ('pub_date',)
     search_fields = ('name', 'author')
     list_filter = ('name', 'author', 'tag')
     empty_value_display = '-пусто-'
+    readonly_fields = ('is_favorited',)
+
+    def is_favorited(self, obj):
+        return Favorite.objects.filter(recipe=obj).count()
 
 
 @admin.register(Favorite)

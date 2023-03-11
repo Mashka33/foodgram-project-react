@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from rest_framework import mixins, viewsets, status, serializers
-from backend.recipes.models import (Ingredient, Tag, Recipe, Favorite,
-                                    ShoppingCart, IngredientInRecipe)
+from rest_framework import mixins, permissions, status, views, viewsets, filters, serializers
+from recipes.models import (Ingredient, Tag, Recipe, Favorite,
+                            ShoppingCart, IngredientInRecipe)
+from users.models import User, Follow
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .filters import IngredientFilter
 from .pagination import CustomPagination
@@ -18,6 +19,62 @@ from rest_framework.response import Response
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.conf import settings
+from .serializers import (FollowSerializer, SubscriptionSerializer,
+                          CustomPasswordRetypeSerializer)
+from rest_framework.generics import ListAPIView
+
+class SubscriptionViewSet(ListAPIView):
+    serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('following__username', 'user__username',)
+
+    def get_queryset(self):
+        return self.request.user.follower.all()
+
+
+class FollowView(views.APIView):
+    pagination_class = CustomPagination
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        author = get_object_or_404(User, pk=pk)
+        user = self.request.user
+        data = {'author': author.id, 'user': user.id}
+        serializer = FollowSerializer(
+            data=data, context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, pk):
+        author = get_object_or_404(User, pk=pk)
+        user = self.request.user
+        subscription = get_object_or_404(
+            Follow, user=user, author=author
+        )
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SetPasswordRetypeView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = CustomPasswordRetypeSerializer(
+            data=request.data,
+            context={
+                'request': request,
+                'format': self.format_kwarg,
+                'view': self
+            }
+        )
+        if serializer.is_valid():
+            self.request.user.set_password(serializer.data['new_password'])
+            self.request.user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class IngredientViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin,
@@ -86,7 +143,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user).values(
             'ingredient__name',
-            'ingredient__measurement'
+            'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
         today = datetime.today()
         shopping_list = (
@@ -95,7 +152,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         shopping_list += '\n'.join([
             f'- {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement"]})'
+            f'({ingredient["ingredient__measurement_unit"]})'
             f' - {ingredient["amount"]}'
             for ingredient in ingredients
         ])
