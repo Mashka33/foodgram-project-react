@@ -1,27 +1,28 @@
 from datetime import datetime
 
-from rest_framework import mixins, permissions, status, views, viewsets, filters, serializers
-from recipes.models import (Ingredient, Tag, Recipe, Favorite,
-                            ShoppingCart, IngredientInRecipe)
-from users.models import User, Follow
+from django.db.models import Sum
+from django.conf import settings
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import (filters, mixins, permissions,
+                            serializers, status, views, viewsets)
+from rest_framework.decorators import action
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
+                            Recipe, ShoppingCart, Tag)
+from users.models import Follow, User
 from .filters import IngredientFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
-from .serializers import (IngredientSerializer, TagSerializer,
+from .serializers import (AddRecipeSerializer, CustomPasswordRetypeSerializer,
+                          FollowSerializer, IngredientSerializer,
                           RecipeSerializer, RecipeShortSerializer,
-                          AddRecipeSerializer)
+                          TagSerializer, SubscriptionSerializer)
 
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from django.db.models import Sum
-from django.http import HttpResponse
-from django.conf import settings
-from .serializers import (FollowSerializer, SubscriptionSerializer,
-                          CustomPasswordRetypeSerializer)
-from rest_framework.generics import ListAPIView
 
 class SubscriptionViewSet(ListAPIView):
     serializer_class = SubscriptionSerializer
@@ -121,14 +122,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post', 'delete'],
+            permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
         if request.method == 'POST':
             return self.add_recipe(Favorite, request, pk)
         else:
             return self.delete_recipe(Favorite, request, pk)
 
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post', 'delete'],
+            permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
             return self.add_recipe(ShoppingCart, request, pk)

@@ -1,11 +1,13 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers
-from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Recipe, Ingredient, IngredientInRecipe,
-                                    Tag, Favorite, ShoppingCart)
-from rest_framework.validators import UniqueTogetherValidator
 from django.db import transaction
-from djoser.serializers import UserCreateSerializer, UserSerializer, PasswordSerializer, CurrentPasswordSerializer
+from django.shortcuts import get_object_or_404
+from djoser.serializers import (UserCreateSerializer, UserSerializer,
+                                PasswordSerializer, CurrentPasswordSerializer)
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
+                            Recipe, ShoppingCart, Tag)
 from users.models import User, Follow
 
 
@@ -30,19 +32,6 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             raise serializers.ValidationError(
                 'Пользователь с таким именем уже существует')
         return obj
-
-
-class RecipeShortSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time'
-        )
 
 
 class CustomUserSerializer(UserSerializer):
@@ -82,6 +71,19 @@ class FollowSerializer(serializers.ModelSerializer):
                 'Нельзя подписываться на самого себя!'
             )
         return value
+
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -144,7 +146,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit')
 
     class Meta:
         model = IngredientInRecipe
@@ -171,9 +174,9 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredient = IngredientInRecipeSerializer(
         source='ingredient_in_recipe', many=True)
     image = Base64ImageField()
-    is_favorite = serializers.SerializerMethodField(
+    is_favorited = serializers.SerializerMethodField(
         method_name='get_is_favorite')
-    is_shopping_cart = serializers.SerializerMethodField(
+    is_in_shopping_cart = serializers.SerializerMethodField(
         method_name='get_is_shopping_cart')
 
     class Meta:
@@ -182,7 +185,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'id', 'name', 'author',
             'image', 'ingredient',
             'text', 'tag', 'cooking_time',
-            'pub_date', 'is_favorite', 'is_shopping_cart'
+            'pub_date', 'is_favorited', 'is_in_shopping_cart'
         )
 
     def get_list(self, obj, model):

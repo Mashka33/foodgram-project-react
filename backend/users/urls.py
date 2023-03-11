@@ -1,6 +1,7 @@
 from django.urls import include, path
 
-from api.views import FollowView, SubscriptionViewSet, SetPasswordRetypeView
+from api.views import FollowView, SetPasswordRetypeView, SubscriptionViewSet
+
 
 urlpatterns = [
     path('users/subscriptions/', SubscriptionViewSet.as_view()),
