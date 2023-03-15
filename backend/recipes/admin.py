@@ -33,10 +33,9 @@ class RecipeAdmin(admin.ModelAdmin):
                     'cooking_time')
     fields = ('name', 'text',
               'author', 'image',
-              'tag', 'cooking_time')
-    ordering = ('pub_date',)
+              'tags', 'cooking_time')
     search_fields = ('name', 'author')
-    list_filter = ('name', 'author', 'tag')
+    list_filter = ('name', 'author', 'tags')
     empty_value_display = '-пусто-'
     readonly_fields = ('is_favorited',)
 
