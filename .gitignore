@@ -131,5 +131,4 @@ dmypy.json
 # .idea
 .idea
 
-
-backend/backend_media/
+/backend/backend_media/
