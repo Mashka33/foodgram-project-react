@@ -132,4 +132,4 @@ dmypy.json
 .idea
 
 
-backend_media/
+backend/backend_media/
