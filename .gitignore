@@ -131,4 +131,5 @@ dmypy.json
 # .idea
 .idea
 
-backend/backend_media/recipe/
+
+foodgram-project-react/backend/backend_media/recipe/
