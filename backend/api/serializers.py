@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -82,21 +81,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'recipes',
             'recipes_count'
         )
-
-    # def get_is_subscribed(self, obj):
-    #     request = self.context.get('request')
-    #     if not request or request.user.is_anonymous:
-    #         return False
-    #     return Follow.objects.filter(user=request.user, author=obj).exists()
-    #
-    # def get_recipe(self, obj):
-    #     request = self.context.get('request')
-    #     recipes_limit = request.query_params.get('recipes_limit')
-    #     queryset = Recipe.objects.filter(author=obj)
-    #     if recipes_limit is not None:
-    #         queryset = Recipe.objects.filter(
-    #             author=obj)[:int(recipes_limit)]
-    #     return RecipeShortSerializer(queryset, many=True).data
 
     def get_request(self):
         return self.context.get('request')

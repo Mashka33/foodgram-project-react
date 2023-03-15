@@ -1,12 +1,8 @@
-from datetime import datetime
-
-from django.conf import settings
 from django.db.models import Sum, F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (filters, serializers, exceptions,
-                            status, views, viewsets)
+from rest_framework import (exceptions, status, views, viewsets)
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -17,7 +13,7 @@ from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
 from users.models import Follow, User
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
-from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly
 from .serializers import (AddRecipeSerializer, FollowSerializer, IngredientSerializer,
                           RecipeSerializer, RecipeShortSerializer,
                           TagSerializer, SubscriptionSerializer)
