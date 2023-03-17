@@ -15,7 +15,7 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -31,7 +31,7 @@ class Follow(models.Model):
     )
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
-        related_name='author',
+        related_name='following',
         verbose_name='Автор рецепта',
     )
 
@@ -50,4 +50,4 @@ class Follow(models.Model):
         verbose_name_plural = 'Подписки'
 
     def __str__(self):
-        return f'{self.user} follow to {self.author}'
+        return f'{self.user} подписан на {self.author}'

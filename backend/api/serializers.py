@@ -22,11 +22,10 @@ class CustomUserSerializer(UserSerializer):
             'first_name', 'last_name', 'is_subscribed'
         )
 
-    def get_is_subscribed(self, obj):
+    def get_is_subscribed(self, author):
         request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=request.user, author=obj).exists()
+        return (request and request.user.is_authenticated and
+                author.following.filter(user=request.user).exists())
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -86,19 +85,21 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return self.context.get('request')
 
     def get_is_subscribed(self, obj):
-        return Follow.objects.filter(
-            author=obj, user=self.get_request().user
+        return obj.following.filter(
+            user=self.get_request().user
         ).exists()
 
     def get_recipe(self, obj):
         limit = self.get_request().GET.get('recipes_limit')
-        recipes = Recipe.objects.filter(author=obj)
+        recipes = obj.author.all()
         if limit:
             recipes = recipes[:int(limit)]
-        return RecipeShortSerializer(recipes, many=True, context={'request': self.get_request()}).data
+        return RecipeShortSerializer(recipes, many=True,
+                                     context={'request': self.get_request()}
+                                     ).data
 
     def get_recipe_count(self, obj):
-        return Recipe.objects.filter(author=obj).count()
+        return obj.author.all().count()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -156,28 +157,17 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_request(self, obj, model):
         request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
-            return False
-        return model.objects.filter(user=request.user, recipe=obj).exists()
+        # if request is None or request.user.is_anonymous:
+        #     return False
+        return(request and request.user.is_authenticated
+               and model.objects.filter(
+                    user=request.user, recipe=obj).exists())
 
     def get_is_favorited(self, obj):
         return self.get_request(obj, Favorite)
 
     def get_is_in_shopping_cart(self, obj):
         return self.get_request(obj, ShoppingCart)
-
-    # def get_is_favorited(self, obj):
-    #     request = self.context.get('request')
-    #     if request is None or request.user.is_anonymous:
-    #         return False
-    #     return Favorite.objects.filter(user=request.user, recipe=obj).exists()
-    #
-    # def get_is_in_shopping_cart(self, obj):
-    #     request = self.context.get('request')
-    #     if request is None or request.user.is_anonymous:
-    #         return False
-    #     return ShoppingCart.objects.filter(
-    #         user=request.user, recipe=obj).exists()
 
 
 class AddRecipeSerializer(serializers.ModelSerializer):
@@ -237,17 +227,17 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
-        serializer = RecipeSerializer(instance)
-        return serializer.data
+        return RecipeSerializer(instance).data
 
     @transaction.atomic
     def create_ingredients(self, ingredients, recipe):
-        for ingredient in ingredients:
-            IngredientInRecipe.objects.create(
+        IngredientInRecipe.objects.bulk_create(
+            [IngredientInRecipe(
                 ingredient=ingredient.get('id'),
                 recipe=recipe,
                 amount=ingredient.get('amount'),
-            )
+            ) for ingredient in ingredients]
+        )
 
     @transaction.atomic
     def create(self, validated_data):

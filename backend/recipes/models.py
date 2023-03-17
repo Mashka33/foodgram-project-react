@@ -10,17 +10,21 @@ class Ingredient(models.Model):
     name = models.CharField(
         'Название ингредиента',
         unique=True,
-        max_length=300,
+        max_length=settings.MAX_LENGTH_1,
         db_index=True,
         help_text='Введите название ингредиента'
     )
     measurement_unit = models.CharField(
         'Единица измерения',
-        max_length=30,
+        max_length=settings.MAX_LENGTH_1,
         help_text='Введите единицу измерения'
     )
 
     class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['name', 'measurement_unit'],
+            name='unique_measurement_unit')
+        ]
         ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
@@ -33,18 +37,19 @@ class Tag(models.Model):
     name = models.CharField(
         'Название тега',
         unique=True,
-        max_length=20,
+        max_length=settings.MAX_LENGTH_1,
         help_text='Введите тег'
     )
     color = models.CharField(
         'Цвет тега',
         unique=True,
-        max_length=20,
+        max_length=settings.MAX_LENGTH_2,
         help_text='Укажите цвет тега'
     )
     slug = models.SlugField(
         'Слаг тега',
-        unique=True
+        unique=True,
+        max_length=settings.MAX_LENGTH_1
     )
 
     class Meta:
@@ -63,13 +68,13 @@ class Tag(models.Model):
 class Recipe(models.Model):
     name = models.CharField(
         'Название рецепта',
-        max_length=300,
+        max_length=settings.MAX_LENGTH_1,
         help_text='Введите название рецепта'
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='author_recipe',
+        related_name='author',
         verbose_name='Автор рецепта'
     )
     image = models.ImageField(
@@ -139,7 +144,7 @@ class IngredientInRecipe(models.Model):
                 f'{self.ingredient.measurement_unit}')
 
 
-class Favorite(models.Model):
+class FavoriteShopping(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -148,9 +153,14 @@ class Favorite(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Избранный рецепт'
+        verbose_name='Рецепт'
     )
 
+    class Meta:
+        abstract = True
+
+
+class Favorite(FavoriteShopping):
     class Meta:
         constraints = [models.UniqueConstraint(
             fields=['user', 'recipe'],
@@ -164,18 +174,7 @@ class Favorite(models.Model):
         return f'{self.user.username} - {self.recipe.name}'
 
 
-class ShoppingCart(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Список покупок пользователя'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Список покупок'
-    )
-
+class ShoppingCart(FavoriteShopping):
     class Meta:
         constraints = [models.UniqueConstraint(
             fields=['user', 'recipe'],

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
 from .models import (Favorite, Ingredient, IngredientInRecipe,
                      Recipe, ShoppingCart, Tag)
@@ -27,10 +28,16 @@ class TagAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
+class IngredientRecipeInline(admin.TabularInline):
+    model = IngredientInRecipe
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    inlines = (IngredientRecipeInline,)
     list_display = ('pk', 'name', 'author', 'text',
-                    'cooking_time')
+                    'cooking_time', 'is_favorited',
+                    'ingredients_in_recipe')
     fields = ('name', 'text',
               'author', 'image',
               'tags', 'cooking_time')
@@ -39,8 +46,13 @@ class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     readonly_fields = ('is_favorited',)
 
-    def is_favorited(self, obj):
-        return Favorite.objects.filter(recipe=obj).count()
+    def is_favorited(self):
+        return self.favorite.count()
+
+    def ingredients_in_recipe(self, obj):
+        return (', '.join([
+            ingredient.name for ingredient in obj.ingredients.all()
+        ]))
 
 
 @admin.register(Favorite)
@@ -61,3 +73,6 @@ class ShoppingCartAdmin(admin.ModelAdmin):
         'user__email',
         'recipe__name'
     )
+
+
+admin.site.unregister(Group)
