@@ -1,6 +1,6 @@
 # **FOODGRAM API PRODJECT**
 
-[![Django-app workflow](https://github.com/Mashka33/yamdb_final/actions/workflows/yamdb_workflow.yml/badge.svg)](https://github.com/Mashka33/yamdb_final/actions/workflows/yamdb_workflow.yml)
+[![foodgram workflow](https://github.com/Mashka33/foodgram-project-react/actions/workflows/foodgram.yml/badge.svg)](https://github.com/Mashka33/foodgram-project-react/actions/workflows/foodgram.yml)
 
 ![python version](https://img.shields.io/badge/Python-3.9-green)
 ![django version](https://img.shields.io/badge/Django-2.2-green)
@@ -10,9 +10,9 @@
 ![gunicornversion](https://img.shields.io/badge/gunicorn-12.7-green)
 
 #### Проект доступен по эл.адресу:
-http://158.160.36.57/admin/
+http://51.250.82.45/admin/
 
-## *Инфраструктура социальной сети Yamdb*
+## *Foodgram - продуктовый помощник*
 
 <details>
 <summary>
@@ -83,18 +83,20 @@ docker-compose up -d --build
 
 ### Описание проекта:
 
-Социальная сеть позволяющая зарегестрированным пользователям создавать, редактировать и удалять постов.
-Также Yatube позволяет просматривать и комментировать записи других авторов. Незарегистрированным пользователям
-доступен просмотр чужих постов и комментариев.
+Проект представляет собой онлайн-сервис и API для него.
+На этом сервисе пользователи могут публиковать рецепты, подписываться 
+на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное»,
+а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного
+или нескольких выбранных блюд.
 
-Учебный проект 16 спринта факультета бэкенд-разработки [Яндекс.Практикума](https://practicum.yandex.ru/backend-developer)
+Дипломный проект факультета бэкенд-разработки [Яндекс.Практикума](https://practicum.yandex.ru/backend-developer)
 
 ## стек:
 - Python
 - Django
 - Docker
 - Nginx
-- см. файл `api_yamdb/requirements.txt`
+- см. файл `backend/requirements.txt`
 
 ## руководство по установке Docker
 можно найти [здесь](https://docs.docker.com/engine/install/)
@@ -106,8 +108,8 @@ docker-compose up -d --build
 
 #### Клонируйте репозиторий на свой компьютер и перейдите в корневую папку
 
-`git clone https://github.com/Mashka33/infra_sp2.git`
-`cd yatube_api`
+`git clone https://github.com/Mashka33/foodgram-project-react.git`
+`cd backend`
 
 #### Установить виртуальное окружение
 
@@ -133,47 +135,6 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-#### Запустить приложение в контейнерах:
-
-*из директории `infra/`*
-```bash
-docker-compose up -d --build
-```
-
-#### Выполнить миграции:
-
-*из директории `infra/`*
-```bash
-docker-compose exec web python manage.py migrate
-```
-
-#### Создать суперпользователя:
-
-*из директории `infra/`*
-```bash
-docker-compose exec web python manage.py createsuperuser
-```
-
-#### Собрать статику:
-
-*из директории `infra/`*
-```bash
-docker-compose exec web python manage.py collectstatic --no-input
-```
-
-#### Остановить приложение в контейнерах:
-
-*из директории `infra/`*
-```bash
-docker-compose down -v
-```
-
-### Документация API с примерами:
-
-```json
-/redoc/
-```
-
 ## Шаблон наполнения .env файла по пути ```./infra/.env```
 
 ```
@@ -187,6 +148,6 @@ DB_PORT=5432
 
 ### описание команды для заполнения базы данными
 ```bash
-cd api_yamdb && python manage.py loaddata ../infra/fixtures.json
+cd backend && python manage.py loaddata ../infra/fixtures.json
 ```
 ### автор Степанова Мария https://github.com/Mashka33
