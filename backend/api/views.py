@@ -1,5 +1,5 @@
-from django.db.models import F, Sum
 from django.conf import settings
+from django.db.models import F, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,18 +9,16 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .filters import IngredientFilter, RecipeFilter
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from users.models import Follow, User
 
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (AddRecipeSerializer, FollowSerializer,
                           IngredientSerializer, RecipeSerializer,
                           RecipeShortSerializer, SubscriptionSerializer,
                           TagSerializer)
-
-from recipes.models import (Favorite, Ingredient,
-                            Recipe, ShoppingCart, Tag)
-from users.models import Follow, User
 
 
 class SubscriptionView(GenericAPIView):
