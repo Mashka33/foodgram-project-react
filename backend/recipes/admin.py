@@ -1,5 +1,5 @@
-from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.contrib import admin
 
 from .models import (Favorite, Ingredient, IngredientInRecipe,
                      Recipe, ShoppingCart, Tag)
