@@ -40,7 +40,7 @@ chmod +x /usr/local/bin/docker-compose
 scp docker-compose.yml <username>@<host>:/home/<username>/docker-compose.yml
 scp nginx.conf <username>@<host>:/home/<username>/nginx.conf
 ```
-- Создать .env файл по предлагаемому выше шаблону. Обязательно изменить значения POSTGRES_USER и POSTGRES_PASSWORD
+- Создать .env файл по предлагаемому выше шаблону.
 - Для работы с Workflow добавить в Secrets GitHub переменные окружения для работы:
     ```
     DB_ENGINE=<django.db.backends.postgresql>
