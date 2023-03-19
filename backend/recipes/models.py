@@ -159,6 +159,9 @@ class FavoriteShopping(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return f'{self.user.username} - {self.recipe.name}'
+
 
 class Favorite(FavoriteShopping):
     class Meta:
@@ -170,9 +173,6 @@ class Favorite(FavoriteShopping):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
 
-    def __str__(self):
-        return f'{self.user.username} - {self.recipe.name}'
-
 
 class ShoppingCart(FavoriteShopping):
     class Meta:
@@ -183,6 +183,3 @@ class ShoppingCart(FavoriteShopping):
         default_related_name = 'shopping_cart'
         verbose_name = 'Покупки'
         verbose_name_plural = 'Покупки'
-
-    def __str__(self):
-        return f'{self.user.username} - {self.recipe.name}'

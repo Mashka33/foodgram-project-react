@@ -13,9 +13,11 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('username', 'email')
     empty_value_display = '-пусто-'
 
+    @admin.display(description='Количество подписчиков')
     def is_follow_count(self, user):
         return user.following.count()
 
+    @admin.display(description='Количество рецептов')
     def is_recipe_count(self, user):
         return user.recipe.count()
 

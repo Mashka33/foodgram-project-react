@@ -157,8 +157,6 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_request(self, obj, model):
         request = self.context.get('request')
-        # if request is None or request.user.is_anonymous:
-        #     return False
         return(request and request.user.is_authenticated
                and model.objects.filter(
                     user=request.user, recipe=obj).exists())

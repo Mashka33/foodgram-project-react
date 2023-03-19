@@ -30,6 +30,8 @@ class TagAdmin(admin.ModelAdmin):
 
 class IngredientRecipeInline(admin.TabularInline):
     model = IngredientInRecipe
+    extra = 0
+    min_num = 1
 
 
 @admin.register(Recipe)
@@ -46,9 +48,11 @@ class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     readonly_fields = ('is_favorited',)
 
+    @admin.display(description='Количество избраного')
     def is_favorited(self):
         return self.favorite.count()
 
+    @admin.display(description='Ингредиенты')
     def ingredients_in_recipe(self, obj):
         return (', '.join([
             ingredient.name for ingredient in obj.ingredients.all()
