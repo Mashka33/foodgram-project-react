@@ -5,9 +5,9 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
+from recipes.models import (Favorite, IngredientInRecipe, Ingredient,
                             Recipe, ShoppingCart, Tag)
-from users.models import User, Follow
+from users.models import Follow, User
 
 
 class CustomUserSerializer(UserSerializer):
@@ -24,8 +24,8 @@ class CustomUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, author):
         request = self.context.get('request')
-        return (request and request.user.is_authenticated and
-                author.following.filter(user=request.user).exists())
+        return (request and request.user.is_authenticated
+                and author.following.filter(user=request.user).exists())
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -157,9 +157,9 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_request(self, obj, model):
         request = self.context.get('request')
-        return(request and request.user.is_authenticated
-               and model.objects.filter(
-                    user=request.user, recipe=obj).exists())
+        return (request and request.user.is_authenticated
+                and model.objects.filter(user=request.user,
+                                         recipe=obj).exists())
 
     def get_is_favorited(self, obj):
         return self.get_request(obj, Favorite)

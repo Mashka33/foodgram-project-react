@@ -1,9 +1,9 @@
-from django.db.models import Sum, F
+from django.db.models import F, Sum
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (exceptions, status, views, viewsets)
+from rest_framework import (status, viewsets, views,)
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -12,10 +12,12 @@ from rest_framework.response import Response
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (AddRecipeSerializer, FollowSerializer, IngredientSerializer,
-                          RecipeSerializer, RecipeShortSerializer,
-                          TagSerializer, SubscriptionSerializer)
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe,
+from .serializers import (AddRecipeSerializer, FollowSerializer,
+                          IngredientSerializer, RecipeShortSerializer,
+                          RecipeSerializer, SubscriptionSerializer,
+                          TagSerializer)
+
+from recipes.models import (Favorite, IngredientInRecipe, Ingredient,
                             Recipe, ShoppingCart, Tag)
 from users.models import Follow, User
 
@@ -92,7 +94,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         model(recipe=recipe, user=request.user).save()
         serializer = serializer(get_object_or_404(Recipe, id=pk),
                                 context={'request': request})
-        return Response(serializer.data,  status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
     def delete_obj(request, pk, model):
@@ -132,7 +134,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
 
-    @action(methods=['get'], detail=False, permission_classes=(IsAuthenticated,))
+    @action(methods=['get'], detail=False,
+            permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
         ingredients = Ingredient.objects.filter(
             recipe__shopping_cart__user=request.user).values(
