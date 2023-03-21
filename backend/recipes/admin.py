@@ -49,8 +49,8 @@ class RecipeAdmin(admin.ModelAdmin):
     readonly_fields = ('is_favorited',)
 
     @admin.display(description='Количество избраного')
-    def is_favorited(self):
-        return self.favorite.count()
+    def is_favorited(self, obj):
+        return obj.favorite.count()
 
     @admin.display(description='Ингредиенты')
     def ingredients_in_recipe(self, obj):

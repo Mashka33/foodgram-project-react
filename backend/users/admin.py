@@ -19,7 +19,7 @@ class UserAdmin(admin.ModelAdmin):
 
     @admin.display(description='Количество рецептов')
     def is_recipe_count(self, user):
-        return user.recipe.count()
+        return user.author.count()
 
 
 @admin.register(Follow)
